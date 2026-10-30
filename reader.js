@@ -1,56 +1,171 @@
 (() => {
-'use strict';
-const $=sel=>document.querySelector(sel);
-const nav=$('#module-navigation');
-const article=$('#lesson-content');
-const search=$('#lesson-search');
-const total=COURSE.reduce((n,m)=>n+m.lessons.length,0);
-const params=new URLSearchParams(location.search);
-let moduleIndex=Math.max(0,Math.min(COURSE.length-1,Number(params.get('m'))||0));
-let lessonIndex=0;
-const done=new Set();
-function esc(value){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}
-function key(m,l){return `${m}:${l}`}
-function renderNav(term=''){
- const query=term.trim().toLowerCase();
- const html=[];
- COURSE.forEach((m,mi)=>{
-  const hits=m.lessons.map((l,li)=>({li,l})).filter(({l})=>!query||[m.title,m.tag,...l.slice(0,5)].some(x=>String(x).toLowerCase().includes(query)));
-  if(!hits.length)return;
-  html.push(`<div class="module-group"><div class="module-group-title">${String(mi+1).padStart(2,'0')} · ${esc(m.title)}</div>`);
-  hits.forEach(({li,l})=>html.push(`<button type="button" class="lesson-link ${mi===moduleIndex&&li===lessonIndex?'selected':''}" data-module="${mi}" data-lesson="${li}" ${mi===moduleIndex&&li===lessonIndex?'aria-current="page"':''}><span>${esc(l[0])}</span><span class="done-mark" aria-label="${done.has(key(mi,li))?'Read':'Not marked read'}">${done.has(key(mi,li))?'✓':''}</span></button>`));
-  html.push('</div>');
- });
- nav.innerHTML=html.join('')||'<p class="no-results">No lessons match your search.</p>';
- nav.querySelectorAll('button[data-module]').forEach(btn=>btn.addEventListener('click',()=>go(Number(btn.dataset.module),Number(btn.dataset.lesson))));
-}
-function ordinal(){let n=0;for(let i=0;i<moduleIndex;i++)n+=COURSE[i].lessons.length;return n+lessonIndex+1}
-function renderLesson(){
- const m=COURSE[moduleIndex],l=m.lessons[lessonIndex];
- const [title,intro,explanation,example,takeaway,question,options,correct,feedback]=l;
- $('#breadcrumb').textContent=`Module ${moduleIndex+1} / ${m.title}`;
- $('#lesson-count').textContent=`Lesson ${ordinal()} of ${total}`;
- article.innerHTML=`<span class="eyebrow">${esc(m.tag)} / LESSON ${lessonIndex+1} OF ${m.lessons.length}</span><h1>${esc(title)}</h1>
- <div class="lesson-lead">${esc(intro)}</div><h2>Learn the idea</h2><p>${esc(explanation)}</p>
- <div class="worked-example"><span class="example-label">WORKED EXAMPLE</span><p>${esc(example)}</p></div>
- <div class="takeaway"><strong>Remember</strong><span>${esc(takeaway)}</span></div>
- <div class="knowledge-check"><span class="eyebrow">CHECK YOUR UNDERSTANDING</span><h2>${esc(question)}</h2><div class="answer-list">${options.map((opt,i)=>`<button type="button" class="answer" data-answer="${i}"><span class="answer-circle">${String.fromCharCode(65+i)}</span>${esc(opt)}</button>`).join('')}</div><div id="answer-feedback" class="answer-feedback" aria-live="polite"></div></div>
- <div class="lesson-end"><button type="button" class="button ${done.has(key(moduleIndex,lessonIndex))?'secondary':'primary'}" id="mark-read">${done.has(key(moduleIndex,lessonIndex))?'✓ Marked as read':'✓ Mark lesson as read'}</button><span>Continue when you are ready. No scores are collected.</span></div>`;
- article.querySelectorAll('.answer').forEach(btn=>btn.addEventListener('click',()=>{
-   const choice=Number(btn.dataset.answer),right=choice===correct;
-   article.querySelectorAll('.answer').forEach(b=>{b.classList.toggle('is-right',Number(b.dataset.answer)===correct);b.classList.toggle('is-wrong',Number(b.dataset.answer)===choice&&!right);b.disabled=true});
-   const f=$('#answer-feedback'); f.textContent=(right?'Correct. ':'Not quite. ')+feedback;f.className='answer-feedback '+(right?'correct':'incorrect');
- }));
- $('#mark-read').addEventListener('click',()=>{done.add(key(moduleIndex,lessonIndex));renderNav(search.value);$('#mark-read').textContent='✓ Marked as read';$('#mark-read').classList.replace('primary','secondary')});
- const first=moduleIndex===0&&lessonIndex===0;const last=moduleIndex===COURSE.length-1&&lessonIndex===m.lessons.length-1;
- $('#lesson-prev').disabled=first;$('#lesson-next').disabled=last;
- $('#lesson-next').textContent=last?'You reached the last lesson':'Next lesson →';
- document.title=`${title} | Think Like a Technician`;
-}
-function go(mi,li){moduleIndex=mi;lessonIndex=li;renderNav(search.value);renderLesson();history.replaceState(null,'',`learn.html?m=${moduleIndex}&l=${lessonIndex}`);window.scrollTo({top:0,behavior:'instant'})}
-function move(direction){let m=moduleIndex,l=lessonIndex+direction;if(l<0){m--;if(m<0)return;l=COURSE[m].lessons.length-1}else if(l>=COURSE[m].lessons.length){m++;if(m>=COURSE.length)return;l=0}go(m,l)}
-$('#lesson-prev').addEventListener('click',()=>move(-1));$('#lesson-next').addEventListener('click',()=>move(1));
-search.addEventListener('input',()=>renderNav(search.value));
-lessonIndex=Math.max(0,Math.min(COURSE[moduleIndex].lessons.length-1,Number(params.get('l'))||0));
-renderNav();renderLesson();
+  'use strict';
+  const $ = (selector) => document.querySelector(selector);
+  const root = $('#module-content');
+  const picker = $('#module-picker');
+  if (!root || !picker || !Array.isArray(COURSE)) return;
+  const params = new URLSearchParams(window.location.search);
+  const initial = Number(params.get('m'));
+  let current = Number.isInteger(initial) && initial >= 0 && initial < COURSE.length ? initial : 0;
+  let hasSubmitted = false;
+  const answers = new Map();
+
+  const el = (tag, className, content) => {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    if (content !== undefined) e.textContent = String(content);
+    return e;
+  };
+
+  COURSE.forEach((module, i) => {
+    const opt = new Option(`${i+1}. ${module.title}`, String(i));
+    picker.add(opt);
+  });
+
+  function render() {
+    hasSubmitted = false;
+    answers.clear();
+    root.replaceChildren();
+    const module = COURSE[current];
+    const header = el('section','module-header');
+    header.append(el('p','eyebrow',`MODULE ${String(current+1).padStart(2,'0')} / ${COURSE.length}`));
+    header.append(el('h1','',module.title));
+    header.append(el('p','module-intro',`${module.tag}. Read the discussion, then check your understanding with a short quiz.`));
+    const quick = el('a','text-link','Jump to quiz ↓');
+    quick.href = '#quiz';
+    header.append(quick);
+    root.append(header);
+
+    const discussion = el('section','discussion');
+    discussion.id = 'discussion';
+    discussion.append(el('h2','section-label','Discussion'));
+    module.lessons.forEach((lesson) => {
+      const [title, introduction, explanation, example, takeaway] = lesson;
+      const part = el('article','topic');
+      part.append(el('h3','',title));
+      part.append(el('p','',introduction));
+      part.append(el('p','',explanation));
+      const worked = el('p','example');
+      worked.append(el('strong','', 'Example: '));
+      worked.append(document.createTextNode(example));
+      part.append(worked);
+      const remember = el('p','takeaway');
+      remember.append(el('strong','', 'Key point: '));
+      remember.append(document.createTextNode(takeaway));
+      part.append(remember);
+      discussion.append(part);
+    });
+    root.append(discussion);
+
+    const quiz = el('section','quiz');
+    quiz.id = 'quiz';
+    quiz.append(el('p','eyebrow','CHECK YOUR UNDERSTANDING'));
+    quiz.append(el('h2','','Module Quiz'));
+    quiz.append(el('p','quiz-lead',`Answer all ${module.lessons.length} questions, then press Submit Quiz to see your score and explanations.`));
+    const form = el('form','quiz-form');
+    form.id = 'quiz-form';
+    form.noValidate = true;
+    module.lessons.forEach((lesson, qi) => {
+      const [, , , , , question, options] = lesson;
+      const fieldset = el('fieldset','question');
+      const legend = el('legend','',`${qi+1}. ${question}`);
+      fieldset.append(legend);
+      options.forEach((option, oi) => {
+        const label = el('label','answer-option');
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `q${qi}`;
+        radio.value = String(oi);
+        radio.addEventListener('change', () => {
+          answers.set(qi, oi);
+          if (hasSubmitted) { hasSubmitted = false; resetFeedback(); }
+        });
+        const text = el('span','', `${String.fromCharCode(65+oi)}. ${option}`);
+        label.append(radio, text);
+        fieldset.append(label);
+      });
+      const explanation = el('div','answer-explanation');
+      explanation.id = `feedback-${qi}`;
+      explanation.hidden = true;
+      fieldset.append(explanation);
+      form.append(fieldset);
+    });
+    const actions = el('div','quiz-actions');
+    const submit = el('button','button button-primary','Submit Quiz');
+    submit.type = 'submit';
+    const retry = el('button','button button-outline','Try Again');
+    retry.type = 'button';
+    retry.id = 'retry-quiz';
+    retry.hidden = true;
+    actions.append(submit,retry);
+    form.append(actions);
+    const result = el('div','quiz-result');
+    result.id = 'quiz-result';
+    result.setAttribute('role','status');
+    result.setAttribute('aria-live','polite');
+    form.append(result);
+    quiz.append(form);
+    root.append(quiz);
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const count = module.lessons.length;
+      if (answers.size < count) {
+        result.className = 'quiz-result quiz-warning';
+        result.textContent = `Please answer all ${count} questions before submitting (${answers.size}/${count} answered).`;
+        return;
+      }
+      let correctCount = 0;
+      module.lessons.forEach((lesson, qi) => {
+        const correct = lesson[7];
+        const chosen = answers.get(qi);
+        const right = chosen === correct;
+        if (right) correctCount++;
+        const feedback = $(`#feedback-${qi}`);
+        feedback.hidden = false;
+        feedback.className = 'answer-explanation '+(right?'right':'wrong');
+        feedback.textContent = `${right?'Correct.':'Not quite.'} ${lesson[8]}`;
+        const radios = [...form.querySelectorAll(`input[name="q${qi}"]`)];
+        radios.forEach((radio,i) => {
+          const label = radio.closest('label');
+          label.classList.toggle('answer-correct',i===correct);
+          label.classList.toggle('answer-incorrect',i===chosen&&!right);
+        });
+      });
+      const percentage = Math.round(correctCount/count*100);
+      result.className = 'quiz-result quiz-success';
+      result.textContent = `Your score: ${correctCount} out of ${count} (${percentage}%). Review the explanations above or try again.`;
+      retry.hidden = false;
+      hasSubmitted = true;
+      result.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    retry.addEventListener('click', () => {
+      form.reset();
+      answers.clear();
+      hasSubmitted = false;
+      resetFeedback();
+      retry.hidden = true;
+      quiz.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    function resetFeedback() {
+      form.querySelectorAll('.answer-explanation').forEach(e=>{e.hidden=true;e.textContent='';});
+      form.querySelectorAll('.answer-option').forEach(e=>e.classList.remove('answer-correct','answer-incorrect'));
+      result.textContent=''; result.className='quiz-result';
+      retry.hidden = true;
+    }
+    picker.value = String(current);
+    $('#previous-module').disabled = current === 0;
+    $('#next-module').disabled = current === COURSE.length - 1;
+    document.title = `${module.title} | Think Like a Technician`;
+  }
+  function go(index) {
+    current = index;
+    window.history.replaceState({}, '', `learn.html?m=${current}`);
+    render();
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  picker.addEventListener('change',()=>go(Number(picker.value)));
+  $('#previous-module').addEventListener('click',()=>{if(current>0)go(current-1);});
+  $('#next-module').addEventListener('click',()=>{if(current<COURSE.length-1)go(current+1);});
+  render();
 })();
