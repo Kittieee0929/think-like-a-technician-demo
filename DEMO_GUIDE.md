@@ -1,10 +1,9 @@
-# Website walkthrough
+# How to use the learning site
 
-1. Open **Home** to choose a learning path.
-2. Open **Learning Modules** and select a module from the contents sidebar.
-3. Read a lesson, review its example, answer the question, and use **Next lesson**.
-4. Search for a specific topic in the sidebar (for example, *display* or *storage*).
-5. Open **Practice Lab** and investigate the fictional “No Signal” computer problem through five stages.
-6. Open **Quick Reference** to review safety guidance, the symptom table, glossary, and external resource links.
+1. Open the home page and choose one module.
+2. Read the discussion, which contains four short topics and examples.
+3. Scroll to the quiz, answer four questions, and select **Submit Quiz**.
+4. Review the score and explanations, or select **Try Again**.
+5. Use the module chooser to open another topic.
 
-All practice tests are fictional and occur only in the browser. No hardware repairs or user data collection take place. A teacher or qualified supervisor must authorize any real diagnostic work.
+All content is educational. The site does not store student information or grades. Consult an instructor before working with computer hardware.
