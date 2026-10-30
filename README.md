@@ -1,33 +1,22 @@
 # Think Like a Technician
 
-A clear, white-background learning website about **computer systems servicing and systematic troubleshooting**. Designed as a simple online reading resource with a separate interactive simulator.
+A simple, static Computer Systems Servicing learning website.
 
-## What you can learn
+**Learning format:** select a module → read one discussion page → answer a four-question quiz → see a score and explanations.
 
-The **Learning Modules** section contains **12 modules and 48 lessons**. Each lesson includes a concept explanation, a worked example, a short takeaway, and a knowledge-check question.
+Includes 12 modules, with four discussion topics and four multiple-choice questions per module (48 topics and 48 questions total). The subject matter covers diagnostic reasoning, computer components, safety, startup, video, memory, storage, software, networking, maintenance, documentation, and scenarios.
 
-Modules cover problem-solving skills, computer components, safety and ESD, system startup, displays, memory and storage, power and cooling, operating systems, network troubleshooting, service documentation, communication, and practice scenarios.
+## Pages
 
-The **Practice Lab** walks through five activities: Mystery Unit, Plan Before Touching, Test and Log, Peer Debugging, and Reveal and Reflect. All diagnostic results are simulated. The **Quick Reference** section includes safety reminders, a symptom table, a 26-term glossary, and links to technical learning resources.
+- `index.html` — home and module library.
+- `learn.html` — module discussion with quiz immediately after the reading.
+- `learn.js` — original educational material, shared across modules.
+- `reader.js` — module selection, quiz scoring, answer feedback, retry.
+- `styles.css` — simple responsive white layout.
+- `lab.html` and `reference.html` — redirect older bookmarks to the modules page.
 
-## Pages and files
+No accounts, database, analytics, or saved grades. Results appear on the page and disappear on refresh or navigation.
 
-- `index.html` — Home and course library overview
-- `learn.html` — Module reader with searchable chapter navigation
-- `learn.js` — Original lesson content and glossary
-- `reader.js` — Reader controls, quizzes, and temporary reading marks
-- `home.js` — Course catalog on the home page
-- `lab.html` — Guided troubleshooting simulation
-- `script.js` — Five-stage simulation logic
-- `reference.html`, `reference.js` — Quick references and glossary
-- `styles.css` — Responsive white-background design
+## Use
 
-## Open the website
-
-The website uses plain HTML, CSS, and JavaScript. Open `index.html` in a browser or host the files with GitHub Pages. It does not need an account, server, database, build tool, or API key.
-
-Reading marks reset when the page refreshes. The site does not store user profiles or calculate official grades. The simulated diagnostic steps should never replace teacher supervision, school procedures, or qualified electrical servicing.
-
-## Credit and further reading
-
-Original written lessons and code for **Think Like a Technician**. Supplementary links in Quick Reference lead to published guidance from Microsoft Support, Dell Support, and the DepEd Computer Systems Servicing curriculum guide. These are external references, not endorsements.
+Open `index.html` in a web browser, or publish the repository root on GitHub Pages. No dependencies, builds, or network calls are necessary. Follow instructor guidance for any physical repair or electrical work.
