@@ -1,4 +1,4 @@
-/* Think Like a Technician — simple, local-only proposal prototype. */
+/* Think Like a Technician — simple, local-only learning simulator. */
 (() => {
   'use strict';
 
@@ -159,7 +159,7 @@
     const tests = state.tests.map((key, index) => `${index + 1}. ${testData[key].title}\n   Observation: ${testData[key].result}`).join('\n');
     return [
       'THINK LIKE A TECHNICIAN — PRACTICE DEMO NOTES',
-      'Fictional simulation only. Not research data or a validated assessment.',
+      'Fictional simulation only. For guided practice, not a graded assessment.',
       '', 'CASE: Fans spin, monitor displays “No Signal.”',
       'First focus: ' + (state.firstFocus || '(not selected)'),
       'Subsystem: ' + ($('#subsystem').value || '(not selected)'),
