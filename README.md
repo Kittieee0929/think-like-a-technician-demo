@@ -1,63 +1,33 @@
-# Think Like a Technician — proposal demo
+# Think Like a Technician
 
-A small, static, interactive website for the proposed **Grade 12 Computer Systems Servicing (CSS) classroom-based action research** on computational thinking. It follows the original five-step *Think Like a Technician* strategy.
+A clear, white-background learning website about **computer systems servicing and systematic troubleshooting**. Designed as a simple online reading resource with a separate interactive simulator.
 
-## Live experience
+## What you can learn
 
-The demo presents a **fictional** desktop-PC fault (fans run, display says “No Signal”) and guides visitors through:
+The **Learning Modules** section contains **12 modules and 48 lessons**. Each lesson includes a concept explanation, a worked example, a short takeaway, and a knowledge-check question.
 
-1. **Mystery Unit** — analyze symptoms without seeing the cause.
-2. **Plan Before Touching** — apply decomposition, pattern recognition, abstraction, and algorithm design; confirm safe practices.
-3. **Test and Log** — choose safe, simulated checks and read prewritten observations.
-4. **Peer Debugging** — critique a fictional partner's diagnostic log.
-5. **Reveal and Reflect** — see the simulated root cause, reflect, and optionally download a plain-text practice log.
+Modules cover problem-solving skills, computer components, safety and ESD, system startup, displays, memory and storage, power and cooling, operating systems, network troubleshooting, service documentation, communication, and practice scenarios.
 
-The fictional cause in this case is a partly unseated external HDMI connector. The site intentionally models testing **one variable at a time**. It never instructs learners to work on energized components or open an energized power supply.
+The **Practice Lab** walks through five activities: Mystery Unit, Plan Before Touching, Test and Log, Peer Debugging, and Reveal and Reflect. All diagnostic results are simulated. The **Quick Reference** section includes safety reminders, a symptom table, a 26-term glossary, and links to technical learning resources.
 
-### Proposal and ethics boundaries
+## Pages and files
 
-- **Prototype only**: not an approved teaching intervention, expert-validated instrument, or completed study.
-- **No actual research data**: no student names, user accounts, servers, analytics, database, cookies, or persistent local storage.
-- **No CT scores**: proposed pre/post assessments must be administered independently and validated separately; this site does not claim to measure improvement.
-- **No real repair operations**: all case tests are simulated. Practical hardware work requires teacher approval and school safety procedures.
+- `index.html` — Home and course library overview
+- `learn.html` — Module reader with searchable chapter navigation
+- `learn.js` — Original lesson content and glossary
+- `reader.js` — Reader controls, quizzes, and temporary reading marks
+- `home.js` — Course catalog on the home page
+- `lab.html` — Guided troubleshooting simulation
+- `script.js` — Five-stage simulation logic
+- `reference.html`, `reference.js` — Quick references and glossary
+- `styles.css` — Responsive white-background design
 
-## Project structure
+## Open the website
 
-- `index.html` — the accessible five-step activity interface
-- `styles.css` — responsive computer-themed design
-- `script.js` — local-only interactions and simulation logic
-- `.nojekyll` — static GitHub Pages compatibility
+The website uses plain HTML, CSS, and JavaScript. Open `index.html` in a browser or host the files with GitHub Pages. It does not need an account, server, database, build tool, or API key.
 
-## Run locally
+Reading marks reset when the page refreshes. The site does not store user profiles or calculate official grades. The simulated diagnostic steps should never replace teacher supervision, school procedures, or qualified electrical servicing.
 
-Open `index.html` in a modern browser. No build tools, npm, or API keys are needed.
+## Credit and further reading
 
-Alternatively, start a local HTTP server:
-
-```sh
-python -m http.server 8000
-```
-
-Then open `http://localhost:8000`.
-
-## Publish with GitHub Pages
-
-1. Create a new **public** repository on GitHub (e.g. `think-like-a-technician-demo`).
-2. Upload the files from this folder to the repository root.
-3. Open **Settings → Pages → Build and deployment**.
-4. Choose **Deploy from a branch**, select **main** and **/(root)**, and save.
-5. GitHub will show the published URL once Pages finishes deploying.
-
-GitHub Pages availability and UI may vary by account or plan.
-
-## Proposed research alignment
-
-**Participants:** proposed Grade 12 CSS classes at Marcos National High School, Bagbag–Solsona National High School, and Ilocos Norte College of Arts and Trades (INCAT), subject to school permissions and confirmed schedules.
-
-**Primary focus:** decomposition, pattern recognition, abstraction, and algorithm design.
-
-**Manuscript boundary:** proposed baseline and posttest tasks, quality validation, consent/assent, and data collection are separate activities. This repository is strictly a proof-of-concept demo for the proposal presentation.
-
-## License
-
-Demo materials are original to this prototype. You may reuse and modify them within your research group. Third-party brand and institutional endorsements are not implied.
+Original written lessons and code for **Think Like a Technician**. Supplementary links in Quick Reference lead to published guidance from Microsoft Support, Dell Support, and the DepEd Computer Systems Servicing curriculum guide. These are external references, not endorsements.
